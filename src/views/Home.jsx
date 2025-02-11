@@ -7,6 +7,7 @@ const Home = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [showImage, setShowImage] = useState(true);
   const chatContainerRef = useRef(null);
 
   // Auto-scroll when new messages arrive
@@ -22,13 +23,17 @@ const Home = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
+    setShowImage(false); // बटन क्लिक करते ही इमेज हाइड हो जाएगी
+
     const newMessage = { sender: "user", text: input };
     setMessages((prev) => [...prev, newMessage]);
     setInput("");
     setIsTyping(true);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/chat", { message: input });
+      const response = await axios.post("http://127.0.0.1:8000/chat", {
+        message: input,
+      });
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
@@ -49,16 +54,31 @@ const Home = () => {
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-white to-gray-100 p-5">
       <div className="w-full max-w-lg mx-auto flex flex-col h-full bg-white shadow-xl rounded-xl border border-gray-300">
-        
         {/* Header */}
         <div className="bg-gradient-to-r from-gray-100 to-white p-4 text-lg font-semibold text-center border-b border-gray-300 rounded-t-xl">
           🤖 AB AI Chatbot
         </div>
 
+        {/* Image - Hide when message is sent */}
+        {showImage && messages.length === 0 && (
+          <div className="flex justify-center items-center ">
+            {/* <img
+              className="w-full h-auto"
+              src="https://miro.medium.com/v2/resize:fit:1121/0*_jxV-kpGTXLmXVdN.png"
+              alt="Chatbot Illustration"
+            /> */}
+            <img
+              className="w-[60%] h-auto"
+              src="https://d112y698adiu2z.cloudfront.net/photos/production/software_photos/002/432/277/datas/original.jpg"
+              alt="Chatbot Illustration"
+            />
+          </div>
+        )}
+
         {/* Chat Messages - Takes Full Height */}
-        <div 
-          ref={chatContainerRef} 
-          className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide "
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide"
         >
           {messages.map((msg, index) => (
             <motion.div
@@ -66,7 +86,9 @@ const Home = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex ${
+                msg.sender === "user" ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-xs px-4 py-2 rounded-xl shadow-md ${
